@@ -2,6 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By 
 from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import NoSuchElementException
 
 # Wait for the presence of an element
 from selenium.webdriver.support.ui import WebDriverWait
@@ -25,11 +26,6 @@ advertise_cookie_btn.click()
 language_selector_btn = driver.find_element(By.ID, "langSelect-EN")
 language_selector_btn.click()
 
-bigCookie_id = "bigCookie"
-cookies_id = "cookies"
-product_price_prefix = "productPrice"
-product_prefix = "product"
-
 WebDriverWait(driver, 10).until(
     EC.presence_of_element_located((By.ID, "bigCookie"))
 )
@@ -39,18 +35,40 @@ bigCookie_element = driver.find_element(By.ID, "bigCookie")
 
 time.sleep(3)
 
-while True:
-    bigCookie_element.click()
-    cookies_count = driver.find_element(By.ID, cookies_id).text.split(" ")[0]
-    cookies_count = int(cookies_count.replace(",", ""))
-    
-    for i in range(2):
-        product_price = driver.find_element(By.ID, product_price_prefix + str(i)).text
-        product_price = int(product_price.replace(",", ""))
+upgrade_prefix = "upgrade"
 
-        if cookies_count >= product_price:
-            product = driver.find_element(By.ID, product_prefix + str(i))
-            product.click()
-            break
+while True:
+    i = 100
+    while i > 0:
+        bigCookie_element.click()
+        i -= 1
+
+    cookies_count = driver.find_element(By.ID, "cookies").text.split(" ")[0]
+    cookies_count = int(cookies_count.replace(",", ""))
+
+    # for i in range(12):
+    #     try:
+    #         upgrade_element = driver.find_element(By.ID, "upgrade" + str(i))
+    #     except NoSuchElementException:
+    #         print("Element not found")
+    #         break
+
+    #     upgrade_element.click()
+
+    for i in range(12):
+        product_price = driver.find_element(By.ID, "productPrice" + str(i)).text
+        
+        if product_price:
+            product_price = int(product_price.replace(",", ""))
+
+            # upgrade_price = driver.find_element(By.ID, )
+
+            if cookies_count >= product_price:
+                product = driver.find_element(By.ID, "product" + str(i))
+                product.click()
+                
+                break
+
+   
 
 driver.quit()
